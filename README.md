@@ -165,7 +165,7 @@ graph LR
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/mrbin264/HR-Agent.git
+git clone https://github.com/agentic-hr-solutions/HR-Agent.git
 cd HR-Agent
 ```
 
@@ -459,9 +459,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Contact
 
-**Project Maintainer**: [@mrbin264](https://github.com/mrbin264)
+**Project Maintainer**: [@agentic-hr-solutions](https://github.com/agentic-hr-solutions)
 
-**Issues**: [GitHub Issues](https://github.com/mrbin264/HR-Agent/issues)
+**Issues**: [GitHub Issues](https://github.com/agentic-hr-solutions/HR-Agent/issues)
 
 **Hackathon**: Techno-Thon '26 - Employee Onboarding Challenge
 

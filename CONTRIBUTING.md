@@ -55,7 +55,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/mrbin264/HR-Agent.git
+git clone https://github.com/agentic-hr-solutions/HR-Agent.git
 cd HR-Agent/backend
 ```
 
@@ -167,8 +167,8 @@ backend/
 
 ## Questions?
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/mrbin264/HR-Agent/issues)
-- **Discussions**: [Ask questions or share ideas](https://github.com/mrbin264/HR-Agent/discussions)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/agentic-hr-solutions/HR-Agent/issues)
+- **Discussions**: [Ask questions or share ideas](https://github.com/agentic-hr-solutions/HR-Agent/discussions)
 
 ## Recognition
 
