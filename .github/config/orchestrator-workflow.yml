@@ -1,0 +1,304 @@
+id: hr-onboarding-workflow
+orchestrator_workflow:
+  name: HR Onboarding Development Workflow
+  description: Automated workflow for developing the Employee Onboarding Agentic AI System
+  version: "1.0.0"
+  skills:
+  - id: github-issues
+    path: .github/skills/github-issues
+    enabled: true
+    triggers:
+      - on_task_start
+      - on_task_complete
+      - on_error
+
+  - id: microsoft-code-reference
+    path: .github/skills/microsoft-code-reference
+    enabled: true
+    triggers:
+      - on_code_generation
+      - on_pattern_lookup
+
+  - id: microsoft-docs
+    path: .github/skills/microsoft-docs
+    enabled: true
+    triggers:
+      - on_documentation_needed
+      - on_troubleshooting
+
+  - id: make-skill-template
+    path: .github/skills/make-skill-template
+    enabled: true
+    triggers:
+      - on_new_skill_request
+
+  agents:
+  - id: orchestrator
+    path: .github/agents/hr-onboarding-orchestrator.agent.md
+    role: coordinator
+    skills: [github-issues, microsoft-code-reference, microsoft-docs, make-skill-template]
+
+  - id: python-mcp-expert
+    path: .github/agents/python-mcp-expert.agent.md
+    role: backend-developer
+    skills: [microsoft-code-reference, microsoft-docs]
+
+  - id: meta-scaffold
+    path: .github/agents/meta-agentic-project-scaffold.agent.md
+    role: project-manager
+    skills: [github-issues, make-skill-template]
+
+  phases:
+  - id: phase-1-setup
+    name: "Setup & Infrastructure"
+    hours: "0-6"
+    tasks:
+      - id: task-1-1
+        name: "Create project structure"
+        agent: orchestrator
+        action: |
+          Create the following directory structure:
+          - backend/agents/
+          - backend/integrations/
+          - backend/tests/
+          - frontend/src/components/
+          - docs/
+        outputs:
+          - backend/langgraph_workflow.py
+          - backend/function_app.py
+
+      - id: task-1-2
+        name: "Lookup Azure Functions setup"
+        agent: orchestrator
+        skill: microsoft-docs
+        query: "Azure Functions Python v2 programming model HTTP trigger"
+        outputs:
+          - docs/AZURE_SETUP.md
+
+      - id: task-1-3
+        name: "Create tracking issues"
+        agent: orchestrator
+        skill: github-issues
+        action: |
+          Create issues for Phase 1 milestones:
+          - Backend infrastructure setup
+          - Azure deployment configuration
+          - Environment variables setup
+
+  - id: phase-2-backend
+    name: "Backend Agents Development"
+    hours: "6-16"
+    depends_on: [phase-1-setup]
+    tasks:
+      - id: task-2-1
+        name: "Generate OnboardingState TypedDict"
+        agent: python-mcp-expert
+        prompt: |
+          Generate LangGraph OnboardingState TypedDict with fields:
+          new_hire_id, name, role, start_date, phase, tasks_completed, tasks_pending
+          Include Literal types for phase: 'pre_board', 'day1', 'complete'
+        outputs:
+          - backend/models/state.py
+
+      - id: task-2-2
+        name: "Generate Coordinator Agent"
+        agent: python-mcp-expert
+        skill: microsoft-code-reference
+        query: "LangGraph StateGraph conditional edges"
+        prompt: |
+          Generate coordinator agent that:
+          - Takes OnboardingState as input
+          - Calculates days_until_start from start_date
+          - Sets phase based on days_until_start
+          - Returns updated state with error handling
+        outputs:
+          - backend/agents/coordinator.py
+
+      - id: task-2-3
+        name: "Generate IT Agent"
+        agent: python-mcp-expert
+        prompt: |
+          Generate IT provisioning agent that:
+          - Takes OnboardingState
+          - Mock provisions: GitHub access, Azure AD user
+          - Adds to tasks_completed
+          - Returns updated state
+        outputs:
+          - backend/agents/it_agent.py
+
+      - id: task-2-4
+        name: "Generate HR Agent"
+        agent: python-mcp-expert
+        prompt: |
+          Generate HR agent that:
+          - Sends welcome email (mock)
+          - Prepares document forms
+          - Updates tasks_completed and tasks_pending
+        outputs:
+          - backend/agents/hr_agent.py
+
+      - id: task-2-5
+        name: "Generate Manager Agent"
+        agent: python-mcp-expert
+        prompt: |
+          Generate manager agent that:
+          - Sends prep email to manager (mock)
+          - Updates tasks_completed
+        outputs:
+          - backend/agents/manager_agent.py
+
+      - id: task-2-6
+        name: "Generate Training Agent"
+        agent: python-mcp-expert
+        prompt: |
+          Generate training agent that:
+          - Enrolls in mandatory courses (mock)
+          - Updates tasks_completed
+        outputs:
+          - backend/agents/training_agent.py
+
+      - id: task-2-7
+        name: "Generate unit tests"
+        agent: python-mcp-expert
+        prompt_file: .github/prompts/pytest-coverage.prompt.md
+        outputs:
+          - backend/tests/test_agents.py
+          - backend/tests/test_workflow.py
+
+  - id: phase-3-api
+    name: "API & Integration"
+    hours: "16-24"
+    depends_on: [phase-2-backend]
+    tasks:
+      - id: task-3-1
+        name: "Generate Azure Function endpoint"
+        agent: python-mcp-expert
+        skill: microsoft-code-reference
+        query: "Azure Functions HTTP trigger POST JSON response Python"
+        prompt: |
+          Generate Azure Function endpoint:
+          - Route: /api/onboarding/create (POST)
+          - Input: JSON body with name, role, start_date, manager, location
+          - Execute LangGraph workflow
+          - Output: JSON with phase, tasks_completed, tasks_pending
+          - Include CORS headers
+        outputs:
+          - backend/function_app.py
+
+      - id: task-3-2
+        name: "Create LangGraph workflow"
+        agent: python-mcp-expert
+        prompt: |
+          Create complete LangGraph workflow that:
+          - Defines StateGraph with OnboardingState
+          - Adds all agent nodes (coordinator, it, hr, manager, training)
+          - Connects with conditional edges
+          - Compiles and exports workflow
+        outputs:
+          - backend/langgraph_workflow.py
+
+      - id: task-3-3
+        name: "Create integration tests"
+        agent: python-mcp-expert
+        prompt: |
+          Create integration tests for:
+          - Full workflow execution
+          - API endpoint response
+          - State transitions
+        outputs:
+          - backend/tests/test_integration.py
+
+  - id: phase-4-testing
+    name: "Testing & Demo Preparation"
+    hours: "24-40"
+    depends_on: [phase-3-api]
+    tasks:
+      - id: task-4-1
+        name: "Run full test suite"
+        agent: orchestrator
+        action: |
+          cd backend && pytest tests/ --cov --cov-report=html
+
+      - id: task-4-2
+        name: "Create demo data"
+        agent: orchestrator
+        skill: github-issues
+        action: |
+          Create demo scenarios as issues:
+          - Pre-board scenario: Huyền Anh, Engineer, starts in 1 week
+          - Day 1 scenario: Tuấn, Manager, starts today
+          - Complete scenario: Phương, all tasks done
+
+      - id: task-4-3
+        name: "Generate API documentation"
+        agent: orchestrator
+        skill: microsoft-docs
+        query: "OpenAPI specification Python Azure Functions"
+        outputs:
+          - docs/API.md
+
+  triggers:
+    on_file_change:
+      patterns:
+        - "backend/**/*.py"
+      actions:
+        - run_tests
+        - update_coverage
+
+    on_issue_created:
+      labels: ["bug"]
+      actions:
+        - notify_orchestrator
+        - create_fix_task
+
+    on_phase_complete:
+      actions:
+        - create_summary_issue
+        - notify_team
+        - run_quality_gate
+
+  quality_gates:
+  phase-1:
+    checks:
+      - name: "Project structure exists"
+        command: "test -d backend/agents"
+      - name: "Azure Functions configured"
+        command: "test -f backend/function_app.py"
+
+  phase-2:
+    checks:
+      - name: "All agents exist"
+        command: |
+          test -f backend/agents/coordinator.py &&
+          test -f backend/agents/it_agent.py &&
+          test -f backend/agents/hr_agent.py &&
+          test -f backend/agents/manager_agent.py &&
+          test -f backend/agents/training_agent.py
+      - name: "Tests pass"
+        command: "cd backend && pytest tests/ -q"
+      - name: "Coverage > 80%"
+        command: "cd backend && pytest tests/ --cov --cov-fail-under=80"
+
+  phase-3:
+    checks:
+      - name: "API returns 200"
+        command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:7071/api/onboarding/create -X POST -H 'Content-Type: application/json' -d '{}' | grep 200"
+      - name: "Integration tests pass"
+        command: "cd backend && pytest tests/test_integration.py -q"
+
+  phase-4:
+    checks:
+      - name: "All demo scenarios documented"
+        command: "test -f docs/DEMO_SCENARIOS.md"
+      - name: "Full test suite passes"
+        command: "cd backend && pytest tests/ -q"
+
+  notifications:
+  on_phase_start:
+    message: "🚀 Starting {phase_name} (Hours {hours})"
+  on_phase_complete:
+    message: "✅ Completed {phase_name}"
+  on_error:
+    message: "❌ Error in {task_name}: {error_message}"
+  on_quality_gate_fail:
+    message: "⚠️ Quality gate failed: {check_name}"

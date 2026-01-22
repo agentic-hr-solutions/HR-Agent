@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hr-onboarding": {
+      "command": "uv",
+      "args": ["run", "python", "mcp_server.py"],
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/backend"
+      }
+    }
+  }
+}
