@@ -1,0 +1,7 @@
+Resource Group: hr-onboarding-rg
+Location: southeastasia
+Cosmos DB Account: hr-cosmos-1769135477
+Function App: hr-func-1769135477
+Storage Account: hronboard17691354
+Cosmos Endpoint: https://hr-cosmos-1769135477.documents.azure.com:443/
+Created: Fri Jan 23 09:37:05 +07 2026
